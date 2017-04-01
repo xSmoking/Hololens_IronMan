@@ -11,8 +11,6 @@ public class GazeGestureManager : MonoBehaviour
     public static GazeGestureManager Instance { get; private set; }
     public GameObject facePrefab = null;
     public Texture testTexture = null;
-
-    // Represents the hologram that is currently being gazed at.
     public GameObject FocusedObject { get; private set; }
 
     GestureRecognizer recognizer = null;
@@ -115,10 +113,6 @@ public class GazeGestureManager : MonoBehaviour
             var a = result.GetField("faceAttributes");
             var f = a.GetField("facialHair");
             var p = result.GetField("faceRectangle");
-            //float top = -(p.GetField("top").f / cameraResolution.height - .5f);
-            //float left = p.GetField("left").f / cameraResolution.width - .5f;
-            //float width = p.GetField("width").f / cameraResolution.width;
-            //float height = p.GetField("height").f / cameraResolution.height;
 
             string id = string.Format("{0},{1},{2},{3}", p.GetField("left"), p.GetField("top"), p.GetField("width"), p.GetField("height"));
             textmeshes[id] = txtMesh;
@@ -133,7 +127,6 @@ public class GazeGestureManager : MonoBehaviour
                 string filepath = Path.Combine(Application.persistentDataPath, "face_" + count.ToString() + ".png");
                 File.WriteAllBytes(filepath, justThisFace);
 
-#if true
                 GameObject parent = GameObject.Find("Faces");
                 parent.transform.position = Camera.main.transform.position;
                 parent.transform.position += Camera.main.transform.right * 0.35f;
@@ -149,7 +142,6 @@ public class GazeGestureManager : MonoBehaviour
                 newGo.GetComponent<MeshRenderer>().material.mainTexture = texture;
                 newGo.name = "face_" + count.ToString();
                 newGo.tag = "facePicture";
-#endif
             }
             catch (Exception e)
             {
@@ -161,32 +153,11 @@ public class GazeGestureManager : MonoBehaviour
             else
                 faceRectangles += ";" + id;
 
-#if false
-            GameObject faceBounds = (GameObject)Instantiate(framePrefab);
-            faceBounds.transform.position = cameraToWorldMatrix.MultiplyPoint3x4(pixelToCameraMatrix.MultiplyPoint3x4(new Vector3(left + width / 2, top, 0)));
-            faceBounds.transform.rotation = cameraRotation;
-            Vector3 scale = pixelToCameraMatrix.MultiplyPoint3x4(new Vector3(width, height, 0));
-            scale.z = .1f;
-            faceBounds.transform.localScale = scale;
-            faceBounds.tag = "faceBounds";
-
-            Vector3 origin = cameraToWorldMatrix.MultiplyPoint3x4(pixelToCameraMatrix.MultiplyPoint3x4(new Vector3(left + width + .1f, top, 0)));
-            txtObject.transform.position = origin;
-            txtObject.transform.rotation = cameraRotation;
-#endif
-
-#if true
             GameObject pictureParent = GameObject.Find("face_" + count.ToString());
             txtObject.transform.LookAt(Camera.main.transform);
             txtObject.transform.position = new Vector3(pictureParent.transform.position.x + 0.13f, pictureParent.transform.position.y + 0.1f, pictureParent.transform.position.z);
-#endif
             txtObject.tag = "faceText";
-#if false
-            if (j.list.Count > 1)
-                txtObject.transform.localScale /= 2;
-#endif
-
-            //txtMesh.text = string.Format("Gender: {0}\nAge: {1}\nMoustache: {2}\nBeard: {3}\nSideburns: {4}\nGlasses: {5}\nSmile: {6}", a.GetField("gender").str, a.GetField("age"), f.GetField("moustache"), f.GetField("beard"), f.GetField("sideburns"), a.GetField("glasses").str, a.GetField("smile"));
+            
             txtMesh.text = string.Format("Gender: {0}\nAge: {1}\nMoustache: {2}\nBeard: {3}\nSideburns: {4}\nSmile: {5}", a.GetField("gender").str, a.GetField("age"), f.GetField("moustache"), f.GetField("beard"), f.GetField("sideburns"), a.GetField("smile"));
             count++;
             offsetY -= 0.28f;

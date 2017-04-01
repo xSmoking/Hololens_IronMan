@@ -1,4 +1,6 @@
-﻿Shader "Stencil/Outline"
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Stencil/Outline"
 {
 	Properties
 	{
@@ -45,7 +47,7 @@
 	v2g vert(appdata_base v)
 	{
 		v2g OUT;
-		OUT.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+		OUT.pos = UnityObjectToClipPos(v.vertex);
 		OUT.uv = v.texcoord;
 		OUT.normals = v.normal;
 		OUT.viewT = ObjSpaceViewDir(v.vertex);
@@ -97,7 +99,7 @@
 	v2g vert(appdata_base v)
 	{
 		v2g OUT;
-		OUT.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+		OUT.pos = UnityObjectToClipPos(v.vertex);
 
 		OUT.uv = v.texcoord;
 		OUT.normals = v.normal;
