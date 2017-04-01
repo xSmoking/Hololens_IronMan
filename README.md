@@ -1,6 +1,6 @@
 ## IronMan HUD - Microsoft Hololens
 
-Project made by students of Full Sail University at [REBL HQ](https://www.facebook.com/REBLHQ/) in colaboration with [Maker Studios](http://www.makerstudios.com/).
+Project made by students of Full Sail University at [REBL HQ](https://www.facebook.com/REBLHQ/) in collaboration with [Maker Studios](http://www.makerstudios.com/).
 
 Voice Commands list:
 
