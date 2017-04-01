@@ -8,23 +8,49 @@ public class SpeechManager : MonoBehaviour
     KeywordRecognizer keywordRecognizer = null;
     Dictionary<string, System.Action> keywords = new Dictionary<string, System.Action>();
 
+
     // Use this for initialization
     void Start()
     {
-        keywords.Add("Wake up", () =>
+        keywords.Add("Jarvis Target", () =>
         {
-            // Call the OnWakeUp method on every descendant object.
             BroadcastMessage("OnWakeUp");
         });
 
-        keywords.Add("Sleep", () =>
-        {
-            BroadcastMessage("OnClose");
-        });
-
-        keywords.Add("Scan", () =>
+        keywords.Add("Jarvis Scan", () =>
         {
             BroadcastMessage("OnScan");
+        });
+        
+        keywords.Add("Jarvis Reset", () =>
+        {
+            BroadcastMessage("OnReset");
+        });
+
+        keywords.Add("Jarvis Toggle", () =>
+        {
+            BroadcastMessage("OnToggle");
+        });
+        
+        keywords.Add("Jarvis Activate", () =>
+        {
+            BroadcastMessage("OnActivate");
+            BroadcastMessage("Rotate");
+        });
+        keywords.Add("Jarvis Deactivate", () =>
+        {
+            BroadcastMessage("OnDeActivate");
+            BroadcastMessage("StopRotate");
+        });
+
+        keywords.Add("Jarvis Initiate", () =>
+        {
+            BroadcastMessage("OnInitiate");
+        });
+
+        keywords.Add("Jarvis Clear", () =>
+        {
+            BroadcastMessage("OnClear");
         });
 
         //keywords.Add("Drop Sphere", () =>

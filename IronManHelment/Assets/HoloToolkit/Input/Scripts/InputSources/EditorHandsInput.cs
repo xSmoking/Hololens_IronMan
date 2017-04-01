@@ -47,7 +47,7 @@ namespace HoloToolkit.Unity.InputModule
             public Vector3 CumulativeDelta;
         }
 
-        private ManualHandControl manualHandControl;
+        private ManualHandControl manualHandControl = null;
 
         /// <summary>
         /// Dispatched each frame that a hand is moving.

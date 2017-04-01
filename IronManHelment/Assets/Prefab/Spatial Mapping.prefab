@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4628892050069406}
   - component: {fileID: 114107403184296380}
   - component: {fileID: 114602571524574724}
-  - component: {fileID: 114870804605235722}
+  - component: {fileID: 114899357251884892}
   m_Layer: 0
   m_Name: Spatial Mapping
   m_TagString: Untagged
@@ -86,7 +86,7 @@ MonoBehaviour:
   m_Layer: 0
   m_Material: {fileID: 0}
   m_EnableCollisions: 1
---- !u!114 &114870804605235722
+--- !u!114 &114899357251884892
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -94,8 +94,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 1239027633279946}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89061e5276ec04d44b2abdaf565592c6, type: 3}
+  m_Script: {fileID: 11500000, guid: 48f713209e0e7244c961f71f49613195, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DrawMaterial: {fileID: 2100000, guid: dd154c91a4ef8b148b7ee913b5fb3a2e, type: 2}
+  DrawMaterial: {fileID: 2100000, guid: 31987c2fdb6d5d843ae8c14ddb12a1de, type: 2}
   drawVisualMeshes: 0

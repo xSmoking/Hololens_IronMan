@@ -3,33 +3,31 @@ using UnityEngine.VR.WSA.Input;
 using UnityEngine.VR.WSA.WebCam;
 using System.Linq;
 using System.Collections.Generic;
-using SharpConfig;
-using System.Text;
-using System.Threading;
 using System.IO;
 using System;
 
 public class GazeGestureManager : MonoBehaviour
 {
     public static GazeGestureManager Instance { get; private set; }
+    public GameObject facePrefab = null;
+    public Texture testTexture = null;
 
     // Represents the hologram that is currently being gazed at.
     public GameObject FocusedObject { get; private set; }
 
-    GestureRecognizer recognizer;
+    GestureRecognizer recognizer = null;
     Resolution cameraResolution;
     PhotoCapture photoCaptureObject = null;
 
-    Vector3 cameraPosition;
-    Quaternion cameraRotation;
+    Vector3 cameraPosition = Vector3.zero;
+    Quaternion cameraRotation = new Quaternion();
 
-    public GameObject textPrefab;
-    public GameObject status;
-    public GameObject framePrefab;
+    public GameObject textPrefab = null;
+    public GameObject status = null;
+    public GameObject framePrefab = null;
 
     string FaceAPIKey = "630f9a1163b94bc7a60f712e0248c94c";
     string EmotionAPIKey = "f6a8f69e941f4863bf3f3175b91c80bd";
-    string OpenFaceUrl = "http://ml.cer.auckland.ac.nz:8000";
 
     // Update is called once per frame
     void Update()
@@ -73,7 +71,7 @@ public class GazeGestureManager : MonoBehaviour
         c.cameraResolutionWidth = cameraResolution.width;
         c.cameraResolutionHeight = cameraResolution.height;
         c.pixelFormat = CapturePixelFormat.PNG;
-        
+
         captureObject.StartPhotoModeAsync(c, OnPhotoModeStarted);
     }
 
@@ -97,39 +95,30 @@ public class GazeGestureManager : MonoBehaviour
 
         JSONObject j = new JSONObject(responseString);
         Debug.Log(j);
-        var existing = GameObject.FindGameObjectsWithTag("faceText");
-
-        foreach (var go in existing)
-            Destroy(go);
-
-        existing = GameObject.FindGameObjectsWithTag("faceBounds");
-
-        foreach (var go in existing)
-            Destroy(go);
 
         if (j.list.Count == 0)
         {
             status.GetComponent<TextMesh>().text = "No faces found";
             yield break;
         }
-        else
-            status.SetActive(false);
+        status.GetComponent<TextMesh>().text = "Ready";
 
         var faceRectangles = "";
         Dictionary<string, TextMesh> textmeshes = new Dictionary<string, TextMesh>();
-        Dictionary<string, WWW> recognitionJobs = new Dictionary<string, WWW>();
 
+        int count = 0;
+        float offsetY = 0;
         foreach (var result in j.list)
         {
-            GameObject txtObject = (GameObject)Instantiate(textPrefab);
+            GameObject txtObject = Instantiate(textPrefab);
             TextMesh txtMesh = txtObject.GetComponent<TextMesh>();
             var a = result.GetField("faceAttributes");
             var f = a.GetField("facialHair");
             var p = result.GetField("faceRectangle");
-            float top = -(p.GetField("top").f / cameraResolution.height - .5f);
-            float left = p.GetField("left").f / cameraResolution.width - .5f;
-            float width = p.GetField("width").f / cameraResolution.width;
-            float height = p.GetField("height").f / cameraResolution.height;
+            //float top = -(p.GetField("top").f / cameraResolution.height - .5f);
+            //float left = p.GetField("left").f / cameraResolution.width - .5f;
+            //float width = p.GetField("width").f / cameraResolution.width;
+            //float height = p.GetField("height").f / cameraResolution.height;
 
             string id = string.Format("{0},{1},{2},{3}", p.GetField("left"), p.GetField("top"), p.GetField("width"), p.GetField("height"));
             textmeshes[id] = txtMesh;
@@ -141,15 +130,30 @@ public class GazeGestureManager : MonoBehaviour
                 var dest = new Texture2D((int)p["width"].i, (int)p["height"].i);
                 dest.SetPixels(source.GetPixels((int)p["left"].i, cameraResolution.height - (int)p["top"].i - (int)p["height"].i, (int)p["width"].i, (int)p["height"].i));
                 byte[] justThisFace = dest.EncodeToPNG();
-                string filepath = Path.Combine(Application.persistentDataPath, "cropped.png");
+                string filepath = Path.Combine(Application.persistentDataPath, "face_" + count.ToString() + ".png");
                 File.WriteAllBytes(filepath, justThisFace);
-                Sprite sprite = GetComponent<IMG2Sprite>().LoadNewSprite(filepath);
-                GameObject.FindGameObjectWithTag("FaceSprite").GetComponent<SpriteRenderer>().sprite = sprite;
-                recognitionJobs[id] = new WWW(OpenFaceUrl, justThisFace);
+
+#if true
+                GameObject parent = GameObject.Find("Faces");
+                parent.transform.position = Camera.main.transform.position;
+                parent.transform.position += Camera.main.transform.right * 0.35f;
+                parent.transform.position += Camera.main.transform.up * 0.17f;
+                parent.transform.position += Camera.main.transform.forward * 2.0f;
+
+                Texture2D texture = GameObject.FindGameObjectWithTag("GameManager").GetComponent<IMG2Sprite>().LoadTexture(filepath);
+                GameObject newGo = Instantiate(facePrefab, parent.transform.position, Quaternion.Euler(90, 180, 0));
+                newGo.transform.LookAt(Camera.main.transform);
+                newGo.transform.rotation = Quaternion.Euler(90 + newGo.transform.eulerAngles.x, newGo.transform.eulerAngles.y, newGo.transform.eulerAngles.z);
+                newGo.transform.position = new Vector3(newGo.transform.position.x, newGo.transform.position.y + offsetY, newGo.transform.position.z);
+                newGo.GetComponent<MeshRenderer>().material = new Material(Shader.Find("Diffuse"));
+                newGo.GetComponent<MeshRenderer>().material.mainTexture = texture;
+                newGo.name = "face_" + count.ToString();
+                newGo.tag = "facePicture";
+#endif
             }
             catch (Exception e)
             {
-                Debug.LogError(e);
+                Debug.Log(e);
             }
 
             if (faceRectangles == "")
@@ -157,6 +161,7 @@ public class GazeGestureManager : MonoBehaviour
             else
                 faceRectangles += ";" + id;
 
+#if false
             GameObject faceBounds = (GameObject)Instantiate(framePrefab);
             faceBounds.transform.position = cameraToWorldMatrix.MultiplyPoint3x4(pixelToCameraMatrix.MultiplyPoint3x4(new Vector3(left + width / 2, top, 0)));
             faceBounds.transform.rotation = cameraRotation;
@@ -168,12 +173,23 @@ public class GazeGestureManager : MonoBehaviour
             Vector3 origin = cameraToWorldMatrix.MultiplyPoint3x4(pixelToCameraMatrix.MultiplyPoint3x4(new Vector3(left + width + .1f, top, 0)));
             txtObject.transform.position = origin;
             txtObject.transform.rotation = cameraRotation;
-            txtObject.tag = "faceText";
+#endif
 
+#if true
+            GameObject pictureParent = GameObject.Find("face_" + count.ToString());
+            txtObject.transform.LookAt(Camera.main.transform);
+            txtObject.transform.position = new Vector3(pictureParent.transform.position.x + 0.13f, pictureParent.transform.position.y + 0.1f, pictureParent.transform.position.z);
+#endif
+            txtObject.tag = "faceText";
+#if false
             if (j.list.Count > 1)
                 txtObject.transform.localScale /= 2;
+#endif
 
-            txtMesh.text = string.Format("Gender: {0}\nAge: {1}\nMoustache: {2}\nBeard: {3}\nSideburns: {4}\nGlasses: {5}\nSmile: {6}", a.GetField("gender").str, a.GetField("age"), f.GetField("moustache"), f.GetField("beard"), f.GetField("sideburns"), a.GetField("glasses").str, a.GetField("smile"));
+            //txtMesh.text = string.Format("Gender: {0}\nAge: {1}\nMoustache: {2}\nBeard: {3}\nSideburns: {4}\nGlasses: {5}\nSmile: {6}", a.GetField("gender").str, a.GetField("age"), f.GetField("moustache"), f.GetField("beard"), f.GetField("sideburns"), a.GetField("glasses").str, a.GetField("smile"));
+            txtMesh.text = string.Format("Gender: {0}\nAge: {1}\nMoustache: {2}\nBeard: {3}\nSideburns: {4}\nSmile: {5}", a.GetField("gender").str, a.GetField("age"), f.GetField("moustache"), f.GetField("beard"), f.GetField("sideburns"), a.GetField("smile"));
+            count++;
+            offsetY -= 0.28f;
         }
 
         // Emotion API
@@ -184,13 +200,6 @@ public class GazeGestureManager : MonoBehaviour
         responseString = www.text;
 
         j = new JSONObject(responseString);
-        Debug.Log(j);
-        existing = GameObject.FindGameObjectsWithTag("emoteText");
-
-        foreach (var go in existing)
-        {
-            Destroy(go);
-        }
 
         foreach (var result in j.list)
         {
@@ -212,42 +221,6 @@ public class GazeGestureManager : MonoBehaviour
             }
             txtMesh.text += "\nEmotion: " + highestEmote;
         }
-
-        // OpenFace API
-        foreach (var kv in recognitionJobs)
-        {
-            var id = kv.Key;
-            www = kv.Value;
-            yield return www;
-            responseString = www.text;
-            j = new JSONObject(responseString);
-            Debug.Log(j);
-            var txtMesh = textmeshes[id];
-            if (j.HasField("error"))
-            {
-                txtMesh.text += "\n" + j["error"].str;
-            }
-            else
-            {
-                var d = j["data"];
-                var recogString = string.Format("\nRecognition confidence: {0}\nUPI: {1}", j["confidence"], j["uid"].str);
-
-                if (d.HasField("fullName"))
-                {
-                    recogString += string.Format("\nName: {0}", d["fullName"].str);
-                    if (d.HasField("positions") && d["positions"].Count > 0)
-                    {
-                        var p = d["positions"][0];
-                        recogString += string.Format("\nPosition: {0}\nDepartment: {1}\nReports to: {2}", p["position"].str, p["department"]["name"].str, p["reportsTo"]["name"].str);
-                    }
-                }
-                else
-                {
-                    recogString += d;
-                }
-                txtMesh.text += recogString;
-            }
-        }
     }
 
     void OnCapturedPhotoToMemory(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame photoCaptureFrame)
@@ -268,13 +241,12 @@ public class GazeGestureManager : MonoBehaviour
             photoCaptureFrame.TryGetProjectionMatrix(Camera.main.nearClipPlane, Camera.main.farClipPlane, out projectionMatrix);
             Matrix4x4 pixelToCameraMatrix = projectionMatrix.inverse;
 
-            status.GetComponent<TextMesh>().text = "Processing...";
-            status.transform.position = cameraPosition;
-            status.transform.rotation = cameraRotation;
+            status.GetComponent<TextMesh>().text = "Processing";
 
             StartCoroutine(PostToFaceAPI(imageBufferList.ToArray(), cameraToWorldMatrix, pixelToCameraMatrix));
         }
         photoCaptureObject.StopPhotoModeAsync(OnStoppedPhotoMode);
+
     }
 
     void OnStoppedPhotoMode(PhotoCapture.PhotoCaptureResult result)
@@ -285,21 +257,50 @@ public class GazeGestureManager : MonoBehaviour
 
     void Awake()
     {
-        // Set up a GestureRecognizer to detect Select gestures.
+        Camera.main.nearClipPlane = 100.0f;
         recognizer = new GestureRecognizer();
         recognizer.TappedEvent += (source, tapCount, ray) =>
         {
-            status.GetComponent<TextMesh>().text = "Scanning...";
-            status.SetActive(true);
-            PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
+            OnScan();
         };
         recognizer.StartCapturingGestures();
     }
 
     void OnScan()
     {
-        status.GetComponent<TextMesh>().text = "Scanning...";
-        status.SetActive(true);
+        OnClear();
+        status.GetComponent<TextMesh>().text = "Scanning";
         PhotoCapture.CreateAsync(false, OnPhotoCaptureCreated);
+    }
+
+    void OnClear()
+    {
+        status.GetComponent<TextMesh>().text = "Ready";
+
+        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("faceBounds");
+        foreach (GameObject enemy in gameObjects)
+            Destroy(enemy);
+
+        gameObjects = GameObject.FindGameObjectsWithTag("faceText");
+        foreach (GameObject enemy in gameObjects)
+            Destroy(enemy);
+
+        gameObjects = GameObject.FindGameObjectsWithTag("facePicture");
+        foreach (GameObject enemy in gameObjects)
+            Destroy(enemy);
+
+        gameObjects = GameObject.FindGameObjectsWithTag("emoteText");
+        foreach (GameObject enemy in gameObjects)
+            Destroy(enemy);
+    }
+
+    void OnReset()
+    {
+        Camera.main.nearClipPlane = 100;
+    }
+
+    void OnInitiate()
+    {
+        Camera.main.nearClipPlane = 0.85f;
     }
 }

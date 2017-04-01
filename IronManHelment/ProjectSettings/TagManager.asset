@@ -4,11 +4,13 @@
 TagManager:
   serializedVersion: 2
   tags:
+  - Battery
+  - GameManager
+  - Debug_Log
+  - facePicture
+  - emoteText
   - faceText
   - faceBounds
-  - TagAlong
-  - GameManager
-  - FaceSprite
   layers:
   - Default
   - TransparentFX

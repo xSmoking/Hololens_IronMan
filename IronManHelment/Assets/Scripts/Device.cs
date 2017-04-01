@@ -12,19 +12,10 @@ using Windows.Devices.Power;
 
 public class Device : MonoBehaviour
 {
-    public int remainingBattery = 0;
-    public int fullchargeBattery = 1;
+    public float remainingBattery = 0;
+    public float fullchargeBattery = 1;
     public int batteryPercentage = 0;
-
-    //PerformanceCounter cpuCounter;
-    //PerformanceCounter ramCounter;
-
-    // Use this for initialization
-    void Start()
-    {
-        //cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-        //ramCounter = new PerformanceCounter("Memory", "Available MBytes");
-    }
+    public GameObject[] batterySlots = new GameObject[15];
 
     // Update is called once per frame
     void Update()
@@ -35,24 +26,22 @@ public class Device : MonoBehaviour
 
         string rb = report.RemainingCapacityInMilliwattHours.ToString();
         string fb = report.FullChargeCapacityInMilliwattHours.ToString();
-        remainingBattery = Int32.Parse(rb);
-        fullchargeBattery = Int32.Parse(fb);
-        batteryPercentage = remainingBattery / fullchargeBattery * 100;
-        //batteryInfo.text = batteryPercentage.ToString();
+        remainingBattery = float.Parse(rb);
+        fullchargeBattery = float.Parse(fb);
 #endif
-        //cpuInfo.text = getCurrentCpuUsage();
-        //ramInfo.text = getAvailableRAM();
-    }
+        float ratio = (remainingBattery / fullchargeBattery) * 15.0f;
+        batteryPercentage = Convert.ToInt32(ratio);
 
-    public string getCurrentCpuUsage()
-    {
-        //return cpuCounter.NextValue() + "% CPU";
-        return "";
-    }
+        for (int i = 0; i < 15; ++i)
+        {
+            Material material = new Material(Shader.Find("Diffuse"));
 
-    public string getAvailableRAM()
-    {
-        //return ramCounter.NextValue() + "MB RAM Free";
-        return "";
+            if (i < batteryPercentage)
+                material.color = Color.green;
+            else
+                material.color = Color.red;
+
+            batterySlots[i].GetComponent<MeshRenderer>().material = material;
+        }
     }
 }
