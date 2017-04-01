@@ -12,11 +12,11 @@ Voice Commands list:
  * "Jarvis Reset" to disable HUD *(this also interacts with the physical helmet)*
 
 Credits:
-* [Rusty Swain](https://github.com/RedstoneRusty) - HUD programmer
+* [Russell Swain](https://github.com/RedstoneRusty) - HUD programmer
 * [João Santos](https://github.com/xSmoking) - HUD programmer
 * [Abhijeet Malamkar](https://github.com/abhimalamkar) - HUD design/animation
 * Dylan Sayers - Hardware programmer & helmet fabrication
-* Jonathen Rosario - Helmet fabrication
+* Jonathan Rosario - Helmet fabrication
 * Taylor Peterson - Helmet fabrication
 
 Special thanks:
