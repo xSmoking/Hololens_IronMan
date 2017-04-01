@@ -2,7 +2,7 @@
 
 Project made by students of Full Sail University at [REBL HQ](https://www.facebook.com/REBLHQ/) in colaboration with [Maker Studios](http://www.makerstudios.com/).
 
-Feature list:
+Voice Commands list:
 
  * "Jarvis Initiate" to display HUD *(this also interacts with the physical helmet)*
  * "Jarvis Activate" to initialize flight mode
@@ -25,4 +25,4 @@ Special thanks:
 ### Projects used:
 
  * [Origami](https://github.com/kaiomagalhaes/hololens-academy-101/tree/master/Origami) from Hololens Academy for gestures and voice commands
- * [OpenFace](https://github.com/cmusatyalab/openface) for facial scanning and recognition
+ * [Hololens Facial Recognition](https://github.com/UoA-eResearch/hololens_facial_recognition) for facial scanning and recognition
