@@ -7,7 +7,7 @@ Voice Commands list:
  * "Jarvis Initiate" to display HUD *(this also interacts with the physical helmet)*
  * "Jarvis Activate" to initialize flight mode
  * "Jarvis Deactivate" to hide flight mode
- * "Jarvis Scan" to scan faces in front of camera (this feature cannot be used if camera is recording or in live preview mode)
+ * "Jarvis Scan" to scan faces in front of camera *(this feature cannot be used if camera is recording or if in live preview mode)*
  * "Jarvis Clear" to clear face recognition elements from screen
  * "Jarvis Reset" to disable HUD *(this also interacts with the physical helmet)*
 
